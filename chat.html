@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+  <title>Consulta Câmara</title>
+  <style>
+    @font-face {
+      font-family: "DM Sans";
+      src: url("/dm-sans-latin.woff2") format("woff2");
+      font-weight: 100 1000;
+      font-display: swap;
+    }
+    :root {
+      color-scheme: light;
+      --ink: #1d3029;
+      --muted: #62736b;
+      --green: #135743;
+      --paper: #f8f7f1;
+      --line: #dce2db;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.6 "DM Sans", sans-serif;
+    }
+    button, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: default; opacity: .5; }
+    button:focus-visible, textarea:focus-visible, summary:focus-visible, a:focus-visible {
+      outline: 3px solid #709e8a;
+      outline-offset: 4px;
+    }
+    main { height: 100%; display: flex; flex-direction: column; }
+    .topbar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px max(24px, calc((100% - 880px) / 2));
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { font-family: Georgia, serif; font-size: 25px; letter-spacing: -.7px; }
+    .new-chat {
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: transparent;
+      color: var(--ink);
+      padding: 7px 13px;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+    .download-report { margin: 12px 0; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--green); padding: 6px 10px; font-size: 13px; }
+    .report-status { color: var(--muted); font-size: 13px; }
+    .new-chat:hover:not(:disabled) { background: #eaf0e9; }
+    #history {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+    .conversation {
+      width: min(820px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 30px 0 36px;
+    }
+    #welcome { padding: clamp(20px, 8vh, 90px) 0 25px; }
+    #welcome h1 {
+      font: 400 clamp(32px, 5vw, 46px)/1.2 Georgia, serif;
+      letter-spacing: -1.5px;
+      max-width: 540px;
+      margin: 0 0 16px;
+    }
+    #welcome p { color: var(--muted); max-width: 580px; margin: 0 0 25px; }
+    #examples { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 680px; }
+    #examples button {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 15px 18px;
+      text-align: left;
+      background: #fffdf8;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    #examples button:hover { border-color: #85a797; background: #edf3ec; }
+    .turn { margin-bottom: 30px; }
+    .user-message {
+      margin: 0 0 22px auto;
+      width: fit-content;
+      max-width: 84%;
+      padding: 13px 19px;
+      border-radius: 19px 19px 4px 19px;
+      background: var(--green);
+      color: #fff;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .assistant-message { display: flex; align-items: flex-start; gap: 13px; }
+    .avatar {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border: 1px solid #b9cbbc;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: #e7eee4;
+      font-family: Georgia, serif;
+      font-size: 19px;
+    }
+    .reply { flex: 1; min-width: 0; padding-top: 2px; }
+    .reply-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .execution { font-size: 11px; color: var(--muted); margin: 12px 0 0; }
+    .sources { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 15px; }
+    .sources a {
+      color: var(--green);
+      font-size: 12px;
+      padding: 4px 10px;
+      background: #eaf0e6;
+      border: 1px solid #d5e0d1;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+    .sources a:hover { text-decoration: underline; }
+    details { margin-top: 12px; color: var(--muted); font-size: 12px; }
+    summary { cursor: pointer; width: fit-content; }
+    pre {
+      margin: 10px 0 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f0f1eb;
+      font: 12px/1.6 monospace;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .pending { color: var(--muted); }
+    .pending::after {
+      content: "";
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      margin-left: 9px;
+      border-radius: 50%;
+      background: #648d74;
+      animation: pulse 1.2s ease-in-out infinite;
+      vertical-align: middle;
+    }
+    .error { color: #994936; }
+    #composer {
+      flex-shrink: 0;
+      width: min(850px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 9px 0 max(14px, env(safe-area-inset-bottom));
+      background: var(--paper);
+    }
+    form {
+      padding: 12px 13px 10px 18px;
+      border: 1px solid #bacabd;
+      border-radius: 19px;
+      background: #fffefa;
+      box-shadow: 0 4px 20px #1d302908;
+    }
+    form:focus-within { border-color: #608d75; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
+    }
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 46px;
+      max-height: 150px;
+      max-height: 20dvh;
+      resize: none;
+      overflow-y: auto;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      padding: 3px 0;
+      outline: none;
+    }
+    textarea::placeholder { color: #859086; }
+    textarea:focus-visible { outline: none; }
+    .composer-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .keyboard-hint { font-size: 11px; color: #859086; }
+    .send {
+      border: 0;
+      border-radius: 9px;
+      background: var(--green);
+      color: white;
+      padding: 7px 15px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .send:hover:not(:disabled) { background: #0b4433; }
+    [hidden] { display: none !important; }
+    @keyframes pulse { 50% { opacity: .25; } }
+    @media (prefers-reduced-motion: reduce) { .pending::after { animation: none; } }
+    @media (max-width: 520px) {
+      .topbar { padding: 12px 16px; }
+      .brand { font-size: 23px; }
+      .new-chat { font-size: 12px; padding: 7px 10px; }
+      .conversation { width: calc(100% - 28px); padding-top: 22px; }
+      #welcome { padding-top: 22px; }
+      #welcome h1 { font-size: 35px; }
+      #examples { grid-template-columns: 1fr; }
+      .user-message { max-width: 92%; padding: 11px 15px; }
+      .assistant-message { gap: 9px; }
+      .avatar { width: 25px; height: 25px; font-size: 16px; }
+      #composer { width: calc(100% - 22px); }
+      .keyboard-hint { visibility: hidden; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header class="topbar">
+    <div class="brand">Consulta Câmara</div>
+    <button id="reset" class="new-chat" type="button">＋ Nova conversa</button>
+  </header>
+  <div id="history" tabindex="0" aria-label="Histórico da conversa">
+    <div class="conversation">
+      <section id="welcome">
+        <h1>O que você quer saber sobre a Câmara?</h1>
+        <p>Consulte deputados, propostas, comissões, eventos e votações, além de faltas e despesas. As respostas vêm com fontes oficiais.</p>
+        <div id="examples">
+          <button type="button">Quem mais gastou no último mês?</button>
+          <button type="button">Qual é a profissão de Danilo Forte?</button>
+          <button type="button">Como anda a tramitação do PL 1638/2025?</button>
+          <button type="button">Quem faz parte da CFT?</button>
+        </div>
+      </section>
+      <section id="log" aria-label="Mensagens" aria-live="polite" aria-relevant="additions text"></section>
+    </div>
+  </div>
+  <footer id="composer">
+    <form>
+      <label for="q" class="sr-only">Sua pergunta</label>
+      <textarea id="q" required maxlength="1200" rows="2" placeholder="Pergunte sobre a Câmara…" aria-describedby="keyboard"></textarea>
+      <div class="composer-actions">
+        <span class="keyboard-hint" id="keyboard">Enter para enviar · Shift + Enter para nova linha</span>
+        <button type="submit" class="send">Enviar ↑</button>
+      </div>
+    </form>
+  </footer>
+</main>
+<script>
+  const el = id => document.getElementById(id);
+  const form = document.querySelector('form');
+  const input = el('q');
+  let context = {};
+  let sessionId = crypto.randomUUID();
+  let busy = false;
+
+  function add(parent, tag, text, className) {
+    const node = document.createElement(tag);
+    node.textContent = text;
+    if (className) node.className = className;
+    parent.append(node);
+    return node;
+  }
+
+  function resizeInput() {
+    input.style.height = 'auto';
+    input.style.height = input.scrollHeight + 'px';
+  }
+
+  function sourceLink(parent, label, url) {
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'https:') return;
+      const link = add(parent, 'a', label);
+      link.href = parsed.href;
+      link.target = '_blank';
+      link.rel = 'noopener';
+    } catch {}
+  }
+
+  function setBusy(value) {
+    busy = value;
+    form.querySelector('button').disabled = value;
+    el('reset').disabled = value;
+    el('log').setAttribute('aria-busy', String(value));
+  }
+
+  el('examples').addEventListener('click', event => {
+    if (event.target.tagName !== 'BUTTON') return;
+    input.value = event.target.textContent;
+    resizeInput();
+    input.focus();
+  });
+
+  el('reset').addEventListener('click', () => {
+    context = {};
+    sessionId = crypto.randomUUID();
+    el('log').replaceChildren();
+    el('welcome').hidden = false;
+    input.value = '';
+    resizeInput();
+    el('history').scrollTop = 0;
+    input.focus();
+  });
+
+  input.addEventListener('input', resizeInput);
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      if (!busy) form.requestSubmit();
+    }
+  });
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const question = input.value.trim();
+    if (!question || busy) return;
+    setBusy(true);
+    el('welcome').hidden = true;
+    const turn = add(el('log'), 'article', '', 'turn');
+    const user = add(turn, 'div', question, 'user-message');
+    user.setAttribute('aria-label', 'Você');
+    const assistant = add(turn, 'div', '', 'assistant-message');
+    const avatar = add(assistant, 'span', 'C', 'avatar');
+    avatar.setAttribute('aria-hidden', 'true');
+    const reply = add(assistant, 'div', '', 'reply');
+    const text = add(reply, 'p', 'Consultando as fontes…', 'reply-text pending');
+    text.setAttribute('role', 'status');
+    input.value = '';
+    resizeInput();
+    assistant.scrollIntoView({ block: 'end' });
+    try {
+      const response = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pergunta: question, session_id: sessionId, request_id: crypto.randomUUID() })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.resposta) throw new Error(data.erro || (typeof data.detail === 'string' ? data.detail : 'O fluxo não retornou resposta.'));
+      context = data.contexto;
+      text.textContent = data.resposta;
+      text.classList.remove('pending');
+      text.removeAttribute('role');
+      const execution = data.execucao || {};
+      const model = execution.interpretacao?.usado || execution.redacao?.usado;
+      if (model) add(reply, 'p', model.replace('Modo simples · sem IA', 'Modo simples'), 'execution');
+      const evidence = data.evidencias || {};
+      if (Object.keys(evidence).length) {
+        const sources = add(reply, 'div', '', 'sources');
+        for (const [topic, value] of Object.entries(evidence)) {
+          if (value.fonte) sourceLink(sources, 'Fonte · ' + topic, value.fonte);
+        }
+        const details = add(reply, 'details', '');
+        add(details, 'summary', 'Conferir dados da consulta');
+        add(details, 'pre', JSON.stringify(evidence, null, 2));
+      }
+      const download = add(reply, 'button', 'Baixar relatório', 'download-report');
+      download.type = 'button';
+      const downloadStatus = add(reply, 'span', '', 'report-status');
+      downloadStatus.setAttribute('role', 'status');
+      download.addEventListener('click', async () => {
+        download.disabled = true;
+        downloadStatus.textContent = ' Preparando relatório…';
+        try {
+          const exported = await fetch('/relatorio', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pergunta: question, retorno: data }) });
+          if (!exported.ok) throw new Error('Não foi possível preparar o relatório.');
+          const blob = await exported.blob();
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url; link.download = 'consulta-camara.md'; link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          downloadStatus.textContent = ' Relatório preparado.';
+        } catch (error) { downloadStatus.textContent = ' Falha ao baixar. Tente novamente.'; }
+        finally { download.disabled = false; }
+      });
+      assistant.scrollIntoView({ block: 'start' });
+    } catch (error) {
+      text.className = 'reply-text error';
+      text.textContent = error.message + ' Você pode enviar a pergunta novamente.';
+      text.setAttribute('role', 'alert');
+      if (!input.value) input.value = question;
+      resizeInput();
+    } finally {
+      setBusy(false);
+      input.focus({ preventScroll: true });
+    }
+  });
+</script>
+</body>
+</html>

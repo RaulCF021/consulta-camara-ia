@@ -1,0 +1,130 @@
+{
+  "verificado_em": "2026-11-19T15:33:27.336018+00:00",
+  "perguntas_distintas": 30,
+  "primeira_passagem_ok": 28,
+  "primeira_passagem_falhas_fonte": 2,
+  "apos_correcao_ok": 30,
+  "conferencias_numericas": 14,
+  "casos": [
+    {
+      "pergunta": "Quem mais gastou em outubro de 2026 no Ceará entre os homens?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E entre as mulheres?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Agora em setembro.",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E em São Paulo?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Mostre as três maiores.",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E as três menores?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Qual mulher apresentou mais projetos em 2026?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E entre os homens do Ceará?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Quais projetos foram votados recentemente?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Só três.",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Quantas faltas Danilo Forte teve em 2025?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E em julho de 2026?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E em junho?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Quantas faltas Danilo Forte teve?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Em 2025.",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Como votaram os deputados do Ceará na votação 1228863-102?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E os de Pernambuco?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Explique o PL 1638/2025.",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Quem escreveu o PL 1638/2025?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Como anda a tramitação dele?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Qual é a situação atual?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E os temas?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Quem faz parte da CFT?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "E os detalhes dessa comissão?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Que eventos ela tem esta semana?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Quem são os deputados do partido PSOL?",
+      "resultado": "passou após correção de transporte"
+    },
+    {
+      "pergunta": "E os detalhes desse partido?",
+      "resultado": "passou após correção de transporte"
+    },
+    {
+      "pergunta": "Quem gastou mais em outubro de 2026 entre os evangélicos?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "Qual a profissão de João?",
+      "resultado": "passou"
+    },
+    {
+      "pergunta": "O primeiro.",
+      "resultado": "passou"
+    }
+  ]
+}

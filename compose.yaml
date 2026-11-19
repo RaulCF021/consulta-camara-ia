@@ -1,0 +1,41 @@
+name: consulta-camara
+x-runtime: &runtime
+  image: consulta-camara:local
+  restart: unless-stopped
+  read_only: true
+  user: "1000:1000"
+  tmpfs:
+    - /tmp:size=64m,mode=1777
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  volumes:
+    - dados:/data
+  logging:
+    driver: json-file
+    options: {max-size: 5m, max-file: "2"}
+services:
+  api:
+    <<: *runtime
+    build: .
+    mem_limit: 1536m
+    cpus: 1.0
+    ports: ["127.0.0.1:18182:8000"]
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CONSULTA_DATA_DIR: /data/operacao
+      CONSULTA_CACHE_DIR: /data/fontes
+      CONSULTA_ATTENDANCE_CACHE_DIR: /data/frequencia
+      CONSULTA_PUBLIC_MODE: ${CONSULTA_PUBLIC_MODE:-0}
+      CONSULTA_REQUIRE_AI: ${CONSULTA_REQUIRE_AI:-0}
+      CONSULTA_DAILY_LIMIT: ${CONSULTA_DAILY_LIMIT:-100}
+      CONSULTA_IP_HOURLY_LIMIT: ${CONSULTA_IP_HOURLY_LIMIT:-40}
+  atualizar:
+    <<: *runtime
+    mem_limit: 384m
+    cpus: 0.25
+    environment:
+      CONSULTA_CACHE_DIR: /data/fontes
+      CONSULTA_ATTENDANCE_CACHE_DIR: /data/frequencia
+    command: [sh, -c, "while true; do python atualizar_fontes.py --limite 25; sleep 900; done"]
+volumes:
+  dados:

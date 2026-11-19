@@ -1,0 +1,15 @@
+.git
+.github
+.env
+.env.*
+.secrets
+.runtime
+.venv
+__pycache__
+.pytest_cache
+*.sqlite*
+*.db*
+*.pem
+*.key
+*.log
+openai-key.txt
